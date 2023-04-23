@@ -1,25 +1,16 @@
-const express = require('express')
-const mongodb = require('mongodb').MongoClient
+const express = require('express');
+const db = require('./config/connection');
+const routes = require('./routes');
 
-//init app and middleware
-const app = express()
-port = 3001
+const PORT = process.env.port || 3001;
+const app = express();
 
-const conectionStringURI = 'mongodb://localhost:27017/'
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+// app.use(routes);
 
-let db;
-
-mongodb.connect(
-    conectionStringURI,
-    {
-        useNewURLParser: true,
-        useUnifiedTopology: true
-    },
-    (err, client) => {
-        db = client.db()
-        app.listen(port, () => {
-            conmsole.log(`listening at http://localhost:${port}`)
-        })
-    }
-)
-app.listen(port)
+db.once('open', () => {
+  app.listen(PORT, () => {
+    console.log(`API server running on http://localhost:${PORT}!`);
+  })
+})
