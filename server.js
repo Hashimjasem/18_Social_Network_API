@@ -1,9 +1,9 @@
-const {AppolloServer} = require('appollo-server')
+const {AppolloServer} = require('apollo-server')
 const mongoose = require('mongoose')
 
 const MONGODB = "mongodb://127.0.0.1:27017/socialNetworkDB";
 
-const typeDefs = require('./qraphql/typeDefs');
+const typeDefs = require('./graphql/typeDefs');
 const resolvers = require('./graphql/resolvers');
 
 const server = new AppolloServer({
