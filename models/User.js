@@ -14,14 +14,14 @@ const userSchema = new Schema({
         //add mongoose email validation
     },
     thoughts: [thoughtsSchema],
+    friends: [userSchema],
     createdAt: {
         type: Date,
         default: Date.now,
     },
     toJSON: {
             getters: true,
-        },
-        id: false,
+        }
     }
 );
 
