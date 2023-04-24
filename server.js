@@ -1,21 +1,18 @@
-const {AppolloServer} = require('apollo-server')
-const mongoose = require('mongoose')
+const express = require('express');
+const db = require('./config/connection');
+const routes = require('./routes/api');
 
-const MONGODB = "mongodb://127.0.0.1:27017/socialNetworkDB";
+const cwd = process.cwd();
 
-const typeDefs = require('./graphql/typeDefs');
-const resolvers = require('./graphql/resolvers');
+const PORT = process.env.port || 3001;
+const app = express();
 
-const server = new AppolloServer({
-    typeDefs,
-    resolvers
-});
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use('/api', routes);
 
-mongoose.connect(MONGODB, {useNewUrParser: true})
-.then(() => {
-    console.log("mongoDB Connection Succesful");
-    return server.listen({port: 5000});
+db.once('open', () => {
+    app.listen(PORT, () => {
+        console.log(`listening on http://localhost:${PORT}`)
+    })
 })
-.then((res) => {
-    console.log(`Server running at ${res.url}`)
-});
