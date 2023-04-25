@@ -2,18 +2,26 @@ const { Thought, User } = require('../models')
 
 const router = require('express').Router();
 
+
+
+
+//users
+
+//get all users
 router.get('/users', async function (req, res){
     const users = await User.find({});
     res.json(users);
 });
 
+//get 1 user by id
 router.get('/users/:id', async function (req, res){
     const users = await User.findOne({
         _id: req.params.id
-    });
-    res.json(users);
+    })
+    res.json(users)
 });
 
+//create new user
 router.post('/users', async function (req, res){
     const user = await User.create({
         username: req.body.username,
@@ -22,6 +30,7 @@ router.post('/users', async function (req, res){
     res.json(user);
 });
 
+//update user
 router.put('/users/:id', async function (req, res){
    try {
        const updated = await User.findByIdAndUpdate(req.params.id, {
@@ -34,11 +43,18 @@ router.put('/users/:id', async function (req, res){
    }
 });
 
+//delete user
 router.delete('/users/:id', async function (req, res){
  const deleted = await User.findByIdAndDelete(req.params.id);
     res.json({ data: 'success!'})
 });
 
+
+
+
+//friends
+
+//add friend
 router.post('/users/:userId/friends/:friendId', async function (req, res){
 
    const updated = await User.findByIdAndUpdate(req.params.userId, {
@@ -49,6 +65,7 @@ router.post('/users/:userId/friends/:friendId', async function (req, res){
     res.json(updated);
 });
 
+//remover friend
 router.delete('/users/:userId/friends/:friendId', async function (req, res){
 
    const updated = await User.findByIdAndUpdate(req.params.userId, {
@@ -59,7 +76,13 @@ router.delete('/users/:userId/friends/:friendId', async function (req, res){
     res.json(updated);
 });
 
+//get all friends for user
 
+
+
+//thoughts
+
+//get all thoughts
 router.get('/thoughts', async function (req, res){
     const thoughts = await Thought.find({});
     console.log(thoughts)
@@ -67,7 +90,7 @@ router.get('/thoughts', async function (req, res){
     res.json(thoughts);
 });
 
-
+//get 1 by thought id
 router.get('/thoughts/:id', async function (req, res) {
    try{
        const thought = await Thought.findOne({
@@ -79,14 +102,25 @@ router.get('/thoughts/:id', async function (req, res) {
    }
 })
 
-router.post('/thoughts', function (req, res) {
+//get all thoughts made by user
+router.get('/users/thoughts/:id', async function (req, res){
+  const users = await User.findOne({
+      _id: req.params.id
+  })
+  .populate({
+    path: 'thoughts'
+  })
+  res.json(users);
+});
+
+//create new thought
+router.post('/thoughts/:userId', function (req, res) {
     const data = Thought.create({
         thoughtText: req.body.thoughtText,
-        username: req.body.username,
-        userId: req.body.userId
+        userId: req.params.userId
     }).then((thought) => {
         return User.findByIdAndUpdate(
-            {_id: req.body.userId},
+            {_id: req.params.userId},
             {$addToSet: {thoughts: thought._id}},
             {new: true}
         );
@@ -104,6 +138,7 @@ router.post('/thoughts', function (req, res) {
         });
 });
 
+//update thought by id
 router.put('/thoughts/:id', async function (req, res) {
     try {
         const updated = await Thought.findByIdAndUpdate(req.params.id, {
@@ -115,12 +150,19 @@ router.put('/thoughts/:id', async function (req, res) {
     }
 })
 
+//delete thought by id
 router.delete('/thoughts/:id', async function (req, res) {
         const deleted = await Thought.findByIdAndDelete(req.params.id);
         res.json({data: 'success!'})
   
 })
 
+
+
+
+//Reactions
+
+//add reaction to thought
 router.post('/thoughts/:id/reactions', async function (req, res) {
     const body = req.body;
   
@@ -142,6 +184,7 @@ router.post('/thoughts/:id/reactions', async function (req, res) {
     }
   });
 
+  //delete reaction
   router.delete('/thoughts/:thoughtId/reactions/:reactionId', async function(req, res) {
     try {
       const { thoughtId, reactionId } = req.params;
@@ -161,9 +204,14 @@ router.post('/thoughts/:id/reactions', async function (req, res) {
     }
   });
 
-  router.post('/users/:id/friends', async function(req, res) {
+
+
+
+  //Friends
+  //add friend
+  router.post('/users/:id/friends/:friendId', async function(req, res) {
     const { id } = req.params;
-    const { friendId } = req.body;
+    const { friendId } = req.params;
   
     try {
       const dbUserData = await User.findByIdAndUpdate(id, {
@@ -181,6 +229,7 @@ router.post('/thoughts/:id/reactions', async function (req, res) {
     }
   });
 
+  //remove Friend
   router.delete('/users/:id/friends/:friendId', async function(req, res) {
     const { id, friendId } = req.params;
   
@@ -200,7 +249,16 @@ router.post('/thoughts/:id/reactions', async function (req, res) {
     }
   });
   
-  
+  //view all friends
+  router.get('/users/friends/:id', async function (req, res){
+    const users = await User.findOne({
+        _id: req.params.id
+    })
+    .populate({
+      path: 'friends'
+    })
+    res.json(users);
+});
 
   
   
